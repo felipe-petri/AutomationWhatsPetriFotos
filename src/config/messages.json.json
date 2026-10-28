@@ -1,0 +1,20 @@
+{
+  "document_photos": {
+    "price": 30.00,
+    "packages": {
+      "3x4": 6,
+      "3.5x4.5": 6,
+      "5x5": 2,
+      "5x7": 2
+    },
+    "text": "Nossas fotos para documentos custam R$ 30,00 em qualquer formato (6 fotos para 3x4 ou 2 fotos para 5x5/5x7). Atendimento por ordem de chegada no estúdio em horário comercial!"
+  },
+  "alboom": {
+    "wait_hours_notice": "Nossa equipe precisa de algumas horas para separar os arquivos e gerar a galeria no Alboom. Assim que o álbum subir, você receberá o link por aqui!",
+    "production_days_sla": 10,
+    "confirmation_notice": "Seleção confirmada com sucesso! O prazo de produção e acabamento é de até 10 dias úteis. Avisaremos assim que estiver pronto para retirada."
+  },
+  "sacramental": {
+    "prepaid_notice": "As fotos de Primeira Comunhão, Crisma e Confirmação contratadas para a celebração já possuem pagamento quitado antecipadamente."
+  }
+}
