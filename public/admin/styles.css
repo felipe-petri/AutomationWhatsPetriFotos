@@ -1,0 +1,279 @@
+/* Estilos customizados e utilitários para o Dashboard Petri Fotos */
+
+@layer utilities {
+  .whatsapp-bubble-received {
+    position: relative;
+    background-color: var(--bubble-bg);
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+  }
+
+  .whatsapp-bubble-received::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -8px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 8px 10px 0;
+    border-color: transparent var(--bubble-bg) transparent transparent;
+  }
+}
+
+:root {
+  --bubble-bg: #ffffff;
+  --bubble-text: #111827;
+  --bubble-time: #6b7280;
+  --flow-grid-dot: #cbd5e1;
+}
+
+.dark {
+  --bubble-bg: #202c33;
+  --bubble-text: #e9edef;
+  --bubble-time: #8696a0;
+  --flow-grid-dot: #334155;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.4);
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.6);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.8);
+}
+
+/* Transições suaves ao alternar tema */
+body {
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Animação para toasts */
+@keyframes slideInRight {
+  from {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+}
+
+.toast-enter {
+  animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toast-exit {
+  animation: fadeOutRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Efeito de pulso suave */
+@keyframes softPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.08);
+  }
+}
+
+.status-pulse {
+  animation: softPulse 2s infinite ease-in-out;
+}
+
+/* ===================================================
+ * FLUXOGRAMA DE CONVERSA (CANVAS & NÓS INTERATIVOS)
+ * =================================================== */
+.flowchart-canvas-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  background-color: #f8fafc;
+  background-image: radial-gradient(var(--flow-grid-dot) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+  cursor: grab;
+  user-select: none;
+}
+
+.flowchart-canvas-wrapper.is-dragging {
+  cursor: grabbing;
+}
+
+.dark .flowchart-canvas-wrapper {
+  background-color: #0b1120;
+}
+
+.flowchart-canvas-viewport {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  transition: transform 0.08s ease-out;
+  will-change: transform;
+}
+
+.flowchart-canvas-viewport.is-dragging {
+  transition: none;
+}
+
+.flowchart-canvas-wrapper.is-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 100 !important;
+  border-radius: 0 !important;
+  height: 100vh !important;
+  width: 100vw !important;
+}
+
+/* Nós do Fluxograma */
+.flow-node-card {
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 10px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.06);
+  cursor: pointer;
+  position: absolute;
+  width: 320px;
+}
+
+.flow-node-card:hover {
+  transform: translateY(-3px) scale(1.015);
+  box-shadow: 0 16px 24px -6px rgba(99, 102, 241, 0.22), 0 8px 12px -4px rgba(15, 23, 42, 0.1);
+  border-color: #818cf8 !important;
+}
+
+.flow-node-active {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.4), 0 16px 24px -6px rgba(99, 102, 241, 0.25) !important;
+}
+
+/* Mini balão WhatsApp estilizado dentro do nó */
+.flow-node-whatsapp-bubble {
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.1);
+  border-top-left-radius: 0;
+}
+
+.dark .flow-node-whatsapp-bubble {
+  background-color: #202c33;
+}
+
+.flow-node-whatsapp-bubble::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -6px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 6px 8px 0;
+  border-color: transparent #ffffff transparent transparent;
+}
+
+.dark .flow-node-whatsapp-bubble::before {
+  border-color: transparent #202c33 transparent transparent;
+}
+
+/* Linhas e conectores SVG do Fluxograma */
+.flow-connector-path {
+  fill: none;
+  stroke: #94a3b8;
+  stroke-width: 2.2;
+  transition: stroke 0.2s, stroke-width 0.2s, opacity 0.2s;
+}
+
+.dark .flow-connector-path {
+  stroke: #475569;
+}
+
+.flow-connector-path.active {
+  stroke: #6366f1;
+  stroke-width: 3.2;
+  stroke-dasharray: 6 3;
+  animation: flowLineDash 12s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.5));
+}
+
+.flow-connector-path:hover {
+  stroke: #4f46e5;
+  stroke-width: 3.2;
+}
+
+.flow-edge-badge {
+  pointer-events: all;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.flow-edge-badge:hover {
+  transform: scale(1.08);
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+}
+
+@keyframes flowLineDash {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+/* Animação temporária de foco / flash ao redirecionar para o gerenciador */
+@keyframes highlightFlash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.85);
+    border-color: #6366f1;
+    transform: scale(1.02);
+  }
+  25% {
+    box-shadow: 0 0 0 10px rgba(99, 102, 241, 0.35);
+    border-color: #6366f1;
+  }
+  60% {
+    box-shadow: 0 0 0 14px rgba(99, 102, 241, 0.15);
+    border-color: #818cf8;
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+    transform: scale(1);
+  }
+}
+
+.highlight-pulse-target {
+  animation: highlightFlash 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  scroll-margin: 120px;
+}
+
+/* QR Code container limpo e sem distorções visuais */
+#qrcode-image {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}

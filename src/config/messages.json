@@ -1,0 +1,50 @@
+{
+  "main_menu": {
+    "welcome": "Olá! Seja muito bem-vindo(a) à *Petri Fotos*! 📸✨\n\nComo posso te ajudar hoje? Digite o número da opção desejada:\n\n1️⃣ Fotos para Documento (3x4, 5x5, Passaporte)\n2️⃣ Catálogos e Valores de Ensaios (PDF)\n3️⃣ Revelação e Impressão de Fotos\n4️⃣ Ensaios no Estúdio (Informações e Horários)\n5️⃣ Galeria Alboom (Pedir link ou confirmar fotos escolhidas)\n6️⃣ Fotos de Primeira Comunhão, Crisma ou Confirmação\n0️⃣ Falar com a nossa equipe"
+  },
+  "document_photos": {
+    "price": 30,
+    "packages": {
+      "3x4": 6,
+      "3.5x4.5": 6,
+      "5x5": 2,
+      "5x7": 2
+    },
+    "text": "Nossas fotos para documentos são feitas diretamente aqui no estúdio, com corte profissional e entrega rápida! 📄✨\n\n💰 *Valor único:* R$ 30,00\n\n📋 *Quantidade por formato:*\n• *3x4 cm e 3.5x4.5 cm:* 6 fotos\n• *5x5 cm (Visto) e 5x7 cm:* 2 fotos\n\n🕒 *Como funciona?*\nNão precisa agendar! Basta vir ao estúdio em nosso horário comercial por ordem de chegada. Tiramos a foto na hora e você realiza o pagamento diretamente no balcão.\n\nEstamos te aguardando! Caso precise de nossa localização ou tenha dúvidas, digite *0*."
+  },
+  "catalogs": {
+    "menu": "Escolha o catálogo ou orçamento que você deseja receber em PDF:\n\n1️⃣ Gestante (Orçamento + Figurinos)\n2️⃣ Revelação de Gravidez\n3️⃣ Newborn (Orçamento + Guia de Preparação)\n4️⃣ Smash The Cake\n5️⃣ Aniversário Infantil (Temporadas 2026 / 2027)\n6️⃣ 15 Anos / Debutante (Orçamento + Acervo de Vestidos)\n7️⃣ Aniversário Feminino\n8️⃣ Família\n9️⃣ Batizado\n🔟 Perfil Profissional / Carreira\n1️⃣1️⃣ Formatura em Estúdio\n1️⃣2️⃣ Ensaio de Natal (Sazonal)\n\nDigite o número da opção desejada ou *0* para falar com um atendente.",
+    "submenu_infantil": "Selecione a temporada desejada para *Aniversário Infantil*:\n\n1️⃣ Pacotes 2026\n2️⃣ Pacotes 2027\n\nDigite o número ou *0* para voltar ao menu.",
+    "submenu_natal": "Selecione a opção desejada para o *Ensaio de Natal*:\n\n1️⃣ Lote Novembro (Lote 2)\n2️⃣ Lote Dezembro (Lote 3)\n\nDigite o número ou *0* para voltar ao menu.",
+    "delivery_success": "Acabei de te enviar o material em PDF acima! 📄✨\n\nQualquer dúvida sobre datas disponíveis, formas de pagamento ou agendamento, digite *0* a qualquer momento para falar com a nossa produtora ou envie sua mensagem aqui!",
+    "delivery_missing": "O arquivo em PDF solicitado está em processo de atualização por nossa equipe. Digite *0* para falar diretamente com nosso atendente e receber todas as informações!"
+  },
+  "personal_prints": {
+    "instructions": "Revelamos seus momentos com química fotográfica de alta durabilidade! 🖼️\n\nEnvie as fotos que deseja imprimir aqui pelo chat (de preferência como *Documento* para manter a qualidade original).\nEm seguida, me informe o tamanho desejado (Ex: 10x15, 15x21...).",
+    "quote_and_pix": "Recebemos seu pedido de *{TOTAL_PHOTOS} fotos* no tamanho *{PHOTO_SIZE}*. O valor total é de *R$ {TOTAL_PRICE}*.\n\nComo se trata de uma impressão personalizada de arquivos pessoais, iniciamos a produção mediante confirmação do Pix:\n\n`{PIX_COPIA_E_COLA}`\n\nAssim que enviar o comprovante, já mandamos suas fotos para o laboratório!"
+  },
+  "studio_sessions": {
+    "info": "Realizamos ensaios exclusivos em nosso estúdio climatizado com iluminação profissional e cenários personalizados! 📸\n\nHorário de Atendimento: Segunda a Sexta das 08h30 às 18h30 e Sábados das 08h30 às 12h30.\n\nPara agendar sua data ou tirar dúvidas sobre os pacotes, digite *0* para falar com nossa produtora!"
+  },
+  "alboom": {
+    "menu": "Sobre a sua galeria do Alboom, o que você precisa?\n\n1 - Solicitar link para escolher minhas fotos\n2 - Já escolhi as fotos e quero confirmar a produção\n0 - Voltar ao menu principal",
+    "ask_client_info": "Por favor, me informe o *Nome Completo de quem contratou o ensaio* e a *data aproximada da sessão*:",
+    "wait_hours_notice": "Perfeito! Já registrei seu pedido. ⏳\n\nNossa equipe técnica precisa de *algumas horas* para localizar seus arquivos originais, aplicar o tratamento, subir para o sistema e gerar a sua galeria com segurança.\n\nAssim que o álbum estiver pronto, você receberá o link de acesso diretamente aqui neste WhatsApp!",
+    "production_days_sla": 10,
+    "ask_selection_client_name": "Por favor, me informe o *Nome Completo do titular do ensaio* para confirmarmos a sua seleção:",
+    "confirmation_notice": "Que ótima notícia! 🎉 Registramos que a seleção das suas fotos no Alboom foi finalizada.\n\n📅 *Prazo de Produção:* O prazo para tratamento final, impressão e montagem é de *até 10 dias úteis*.\n\nAssim que o seu material estiver pronto e embalado na recepção, enviaremos uma mensagem avisando que já pode vir retirar! Obrigado pela confiança!"
+  },
+  "sacramental": {
+    "prepaid_notice": "Para localizarmos as fotos da celebração no nosso arquivo, digite em uma mensagem:\n• Nome completo da criança/adolescente\n• Paróquia ou Igreja do evento\n• Ano em que foi realizado\n\n(Lembrando que fotos de Comunhão, Crisma e Confirmação contratadas na cerimônia já possuem pagamento quitado antecipadamente, não havendo custo adicional para retirada do pacote padrão).",
+    "received_notice": "Dados recebidos! Nossa equipe do acervo fará a checagem manual e retornará o contato com você em breve."
+  },
+  "human_attendance": {
+    "direct_transfer": "Transferindo seu atendimento para nossa equipe da Petri Fotos. Em instantes um de nossos atendentes irá te responder por aqui! 💬",
+    "fallback_transfer": "Percebi que posso não ter compreendido bem o que você precisa. Já transferi seu atendimento para nossa equipe da Petri Fotos. Em breve um atendente falará com você por aqui! 💬"
+  },
+  "common": {
+    "invalid_option": "Opção não reconhecida. Por favor, escolha uma das opções listadas ou digite *0* para falar com um atendente.",
+    "session_expired": "Sua sessão anterior foi encerrada por inatividade. Como posso te ajudar hoje?"
+  },
+  "custom_nodes": {}
+}

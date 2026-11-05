@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Petri Fotos • Dashboard Administrativo & Automação</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            petri: {
+              50: '#f5f7fa',
+              100: '#e4e8ef',
+              500: '#2b5797',
+              600: '#1e3f6f',
+              700: '#142a4a',
+              amber: '#d97706',
+              emerald: '#059669'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Estilos customizados -->
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- HEADER NAVEGAÇÃO -->
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-40 shadow-sm transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo e Nome do Estúdio -->
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white shadow-md">
+            <i data-lucide="camera" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-lg tracking-tight text-slate-900 dark:text-white">Petri Fotos</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800">Admin</span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Automação WhatsApp & Controle do Estúdio</p>
+          </div>
+        </div>
+
+        <!-- Status do Backend & Ações Rápidas -->
+        <div class="flex items-center space-x-3">
+          <!-- Backend Connection Indicator -->
+          <div id="backend-status-badge" class="hidden sm:flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 status-pulse"></span>
+            <span id="backend-status-text">Fastify Conectado</span>
+          </div>
+
+          <!-- Botão Atualizar Dados -->
+          <button id="btn-refresh-data" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Recarregar Dados">
+            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+          </button>
+
+          <!-- Toggle Dark/Light Mode -->
+          <button id="btn-theme-toggle" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Alternar Modo Escuro/Claro">
+            <i id="theme-icon-sun" data-lucide="sun" class="w-5 h-5 hidden"></i>
+            <i id="theme-icon-moon" data-lucide="moon" class="w-5 h-5 hidden"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Abas de Navegação Principal -->
+      <nav class="flex space-x-1 sm:space-x-2 border-t border-slate-100 dark:border-slate-700/60 pt-1 pb-2 overflow-x-auto">
+        <button id="tab-btn-sessions" class="tab-button active flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 shrink-0" onclick="switchMainTab('sessions')">
+          <i data-lucide="message-square" class="w-4 h-4"></i>
+          <span>Monitor de Conversas</span>
+        </button>
+
+        <button id="tab-btn-flowchart" class="tab-button flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 shrink-0" onclick="switchMainTab('flowchart')">
+          <i data-lucide="git-branch" class="w-4 h-4 text-indigo-500"></i>
+          <span>Fluxograma Q&A</span>
+        </button>
+
+        <button id="tab-btn-whatsapp" class="tab-button flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 shrink-0" onclick="switchMainTab('whatsapp')">
+          <i data-lucide="smartphone" class="w-4 h-4 text-emerald-500"></i>
+          <span>Conexões WhatsApp API</span>
+        </button>
+
+        <button id="tab-btn-messages" class="tab-button flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 shrink-0" onclick="switchMainTab('messages')">
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+          <span>Mensagens & Preços</span>
+        </button>
+
+        <button id="tab-btn-requests" class="tab-button flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 shrink-0" onclick="switchMainTab('requests')">
+          <i data-lucide="inbox" class="w-4 h-4"></i>
+          <span>Fila de Pedidos & Solicitações</span>
+        </button>
+
+        <button id="tab-btn-catalogs" class="tab-button flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 shrink-0" onclick="switchMainTab('catalogs')">
+          <i data-lucide="link-2" class="w-4 h-4 text-purple-500"></i>
+          <span>Serviços & Links de Catálogos</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- ========================================== -->
+    <!-- ABA 1: MONITOR DE SESSÕES & CONVERSAS     -->
+    <!-- ========================================== -->
+    <section id="tab-content-sessions" class="space-y-6">
+      <!-- Cards de Métricas -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Card 1 -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total de Clientes</p>
+            <h3 id="stat-total" class="text-2xl font-bold mt-1 text-slate-900 dark:text-white">--</h3>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+            <i data-lucide="users" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Atendimento Automático</p>
+            <h3 id="stat-bot" class="text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">--</h3>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <i data-lucide="bot" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Transbordo Humano</p>
+            <h3 id="stat-human" class="text-2xl font-bold mt-1 text-amber-600 dark:text-amber-400">--</h3>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+            <i data-lucide="user-check" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pedidos & Solicitações</p>
+            <h3 id="stat-requests" class="text-2xl font-bold mt-1 text-indigo-600 dark:text-indigo-400">--</h3>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <i data-lucide="package-search" class="w-6 h-6"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros e Busca -->
+      <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div class="relative w-full sm:w-96">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input id="sessions-search-input" type="text" placeholder="Buscar por nome ou WhatsApp (remoteJid)..." class="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100">
+        </div>
+
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <select id="sessions-status-filter" class="w-full sm:w-auto px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100">
+            <option value="all">Todos os Status</option>
+            <option value="bot">Em Atendimento Automático</option>
+            <option value="human">Transbordo Humano</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tabela de Sessões -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                <th class="py-3.5 px-4">Cliente</th>
+                <th class="py-3.5 px-4">WhatsApp (JID)</th>
+                <th class="py-3.5 px-4">Estado Atual (FSM)</th>
+                <th class="py-3.5 px-4">Status de Atendimento</th>
+                <th class="py-3.5 px-4">Última Interação</th>
+                <th class="py-3.5 px-4 text-right">Ações Manuais</th>
+              </tr>
+            </thead>
+            <tbody id="sessions-table-body" class="divide-y divide-slate-100 dark:divide-slate-700 text-sm">
+              <tr>
+                <td colspan="6" class="py-8 text-center text-slate-400">Carregando sessões ativas...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginação -->
+        <div class="p-4 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
+          <span id="sessions-pagination-info">Mostrando 0 de 0 sessões</span>
+          <div class="flex items-center space-x-2">
+            <button id="sessions-prev-btn" class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-700 font-medium">Anterior</button>
+            <span id="sessions-current-page" class="font-semibold text-slate-700 dark:text-slate-200">Pág. 1</span>
+            <button id="sessions-next-btn" class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-700 font-medium">Próxima</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- ABA 2: FLUXOGRAMA DE PERGUNTAS E RESPOSTAS (Q&A FLOW)   -->
+    <!-- ======================================================== -->
+    <section id="tab-content-flowchart" class="hidden space-y-5">
+      <!-- Barra Superior do Fluxograma -->
+      <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400">
+              <i data-lucide="git-branch" class="w-5 h-5"></i>
+            </span>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Fluxograma Interativo Q&A</h2>
+            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-semibold border border-indigo-200 dark:border-indigo-800 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+              Tela Única Dinâmica
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Mapa conversacional completo com conexões lógicas e setas. Clique em qualquer balão para focar e editar no Gerenciador.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <div class="relative w-full sm:w-64">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input id="flow-search-input" type="text" placeholder="Buscar no fluxograma..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white">
+          </div>
+
+          <button onclick="openCreateNodeModal()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Novo Nó de Conversa</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtros por Categoria -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+        <span class="text-slate-400 font-semibold uppercase tracking-wider mr-1 text-[11px]">Filtrar:</span>
+        <button class="flow-filter-pill active px-3 py-1 rounded-full border border-indigo-500 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-medium" onclick="filterFlowchart('Todos')">Todos os Nós</button>
+        <button class="flow-filter-pill px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" onclick="filterFlowchart('Geral')">Boas-Vindas</button>
+        <button class="flow-filter-pill px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" onclick="filterFlowchart('Documentos')">Fotos Documento</button>
+        <button class="flow-filter-pill px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" onclick="filterFlowchart('Catálogos')">Catálogos & Links</button>
+        <button class="flow-filter-pill px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" onclick="filterFlowchart('Revelação')">Revelação & Pix</button>
+        <button class="flow-filter-pill px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" onclick="filterFlowchart('Alboom')">Galeria Alboom</button>
+        <button class="flow-filter-pill px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" onclick="filterFlowchart('Sacramental')">Fotos Sacramentais</button>
+        <button class="flow-filter-pill px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" onclick="filterFlowchart('Atendimento')">Transbordo Humano</button>
+      </div>
+
+      <!-- Grid Principal do Fluxograma: Canvas Interativo + Inspetor / Simulador -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Canvas Visual Interativo com Zoom/Pan (8 cols) -->
+        <div class="lg:col-span-8 space-y-3">
+          
+          <!-- Barra de Controles do Canvas -->
+          <div class="bg-white dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between gap-3 text-xs">
+            <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 font-medium">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span id="canvas-status-nodes-count">14 Nós Conectados</span>
+              <span class="text-slate-300 dark:text-slate-600">|</span>
+              <span class="text-[11px] text-slate-400 hidden sm:inline">Arraste para mover • Scroll para zoom</span>
+            </div>
+
+            <!-- Botões de Zoom e Enquadramento -->
+            <div class="flex items-center gap-1">
+              <button onclick="canvasZoom(-0.15)" class="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Diminuir Zoom">
+                <i data-lucide="zoom-out" class="w-4 h-4"></i>
+              </button>
+              <button onclick="canvasReset()" id="btn-canvas-zoom-label" class="px-2 py-1 rounded-lg text-[11px] font-mono text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Redefinir Zoom para 100%">
+                100%
+              </button>
+              <button onclick="canvasZoom(0.15)" class="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Aumentar Zoom">
+                <i data-lucide="zoom-in" class="w-4 h-4"></i>
+              </button>
+              <button onclick="canvasFitView()" class="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 transition" title="Ajustar à Tela">
+                <i data-lucide="maximize" class="w-3.5 h-3.5"></i>
+                <span>Ajustar</span>
+              </button>
+              <button onclick="toggleCanvasFullscreen()" id="btn-canvas-fullscreen" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 transition" title="Alternar Tela Cheia (ESC para sair)">
+                <i id="icon-canvas-fullscreen" data-lucide="expand" class="w-3.5 h-3.5"></i>
+                <span id="label-canvas-fullscreen">Tela Cheia</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Área do Canvas Interativo (Lousa / Canvas Infinito) -->
+          <div id="flowchart-canvas-wrapper" class="flowchart-canvas-wrapper h-[680px] w-full border border-slate-200 dark:border-slate-700 shadow-sm relative">
+            
+            <!-- Barra de Saída de Tela Cheia / Close Fullscreen -->
+            <div id="flowchart-fullscreen-exit-bar" class="hidden absolute top-3 right-4 z-40 flex items-center gap-2">
+              <button onclick="exitCanvasFullscreen()" class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-900 text-white dark:bg-slate-800/95 dark:hover:bg-slate-700 text-xs font-semibold shadow-xl border border-slate-700 backdrop-blur-md transition">
+                <i data-lucide="minimize-2" class="w-4 h-4 text-indigo-400"></i>
+                <span>Fechar Tela Cheia [ESC]</span>
+              </button>
+            </div>
+
+            <!-- Botão Flutuante de Adicionar Novo Nó no Canvas -->
+            <button onclick="openCreateNodeModal()" class="absolute bottom-4 right-4 z-30 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-xl transition transform hover:scale-105 active:scale-95">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>+ Novo Nó / Mensagem</span>
+            </button>
+
+            <!-- Legenda Rápida Flutuante no Topo do Canvas -->
+            <div class="absolute top-3 left-4 z-20 pointer-events-none flex flex-wrap items-center gap-2 text-[11px] bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-slate-200/80 dark:border-slate-700/80 shadow-sm text-slate-600 dark:text-slate-300">
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Menu Raiz</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Submenu</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Info Direta</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Coleta / Pix</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Transbordo</span>
+            </div>
+
+            <!-- Viewport Móvel e Escalável do Canvas -->
+            <div id="flowchart-canvas-viewport" class="flowchart-canvas-viewport">
+              <!-- Camada de Conexões e Setas em SVG -->
+              <svg id="flowchart-svg-layer" class="absolute top-0 left-0 pointer-events-auto" style="overflow: visible;">
+                <defs>
+                  <!-- Ponta de Seta Padrão -->
+                  <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+                    <polygon points="0 0, 10 4, 0 8" fill="#6366f1" />
+                  </marker>
+                  <!-- Ponta de Seta Ativa / Hover -->
+                  <marker id="arrowhead-active" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto">
+                    <polygon points="0 0, 11 4.5, 0 9" fill="#3b82f6" />
+                  </marker>
+                  <!-- Filtro de Sombra para Conectores -->
+                  <filter id="glow-effect" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#4f46e5" flood-opacity="0.35" />
+                  </filter>
+                </defs>
+                <!-- Caminhos e labels renderizados via JS -->
+                <g id="flowchart-svg-paths"></g>
+                <g id="flowchart-svg-labels"></g>
+              </svg>
+
+              <!-- Camada de Nós (Cards Balões) -->
+              <div id="flowchart-nodes-layer" class="relative">
+                <div class="py-24 text-center text-slate-400">
+                  <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-2 text-indigo-500"></i>
+                  <p class="text-sm">Carregando mapa interativo do fluxo...</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Dica de Rodapé do Canvas -->
+          <div class="text-[11px] text-slate-400 flex items-center justify-between px-2">
+            <span class="flex items-center gap-1.5">
+              <i data-lucide="info" class="w-3.5 h-3.5 text-indigo-500"></i>
+              <span>Clique em qualquer nó ou botão ✏️ para navegar com foco automático na aba <strong>Mensagens & Preços</strong>.</span>
+            </span>
+            <span class="font-mono text-[10px]">Canvas SVG • Modo Dinâmico</span>
+          </div>
+
+        </div>
+
+        <!-- Coluna Direita: Inspetor do Nó Selecionado & Simulador Live (4 cols sticky) -->
+        <div class="lg:col-span-4 space-y-4">
+          <!-- Card Inspetor do Nó Selecionado -->
+          <div id="node-inspector-card" class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3.5">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2.5">
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+                Nó em Foco
+              </span>
+              <button id="btn-inspector-edit-modal" onclick="if (state.selectedFlowNodeId) openEditFlowNodeModal(state.selectedFlowNodeId)" class="text-xs px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-semibold transition" title="Editar propriedades rápidas">
+                Modal Rápido
+              </button>
+            </div>
+
+            <div class="flex items-start gap-2.5">
+              <div id="inspector-icon-box" class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                <i id="inspector-icon" data-lucide="message-square" class="w-5 h-5"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 id="inspector-title" class="font-bold text-slate-900 dark:text-white text-base leading-snug">Selecione um nó</h3>
+                <span id="inspector-badge" class="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-mono">--</span>
+              </div>
+            </div>
+            
+            <div>
+              <span class="text-[11px] font-semibold text-slate-400 uppercase">Gatilho do Cliente</span>
+              <p id="inspector-trigger" class="text-xs text-slate-700 dark:text-slate-300 font-mono bg-slate-50 dark:bg-slate-700/50 p-2 rounded-lg mt-0.5 break-words">--</p>
+            </div>
+
+            <div>
+              <span class="text-[11px] font-semibold text-slate-400 uppercase">Resposta do Bot</span>
+              <div id="inspector-message" class="text-xs text-slate-800 dark:text-slate-200 whitespace-pre-wrap font-sans bg-slate-50 dark:bg-slate-700/50 p-2.5 rounded-lg mt-0.5 max-h-36 overflow-y-auto leading-relaxed border border-slate-100 dark:border-slate-700">
+                Clique em qualquer nó do fluxograma à esquerda para inspecionar e editar.
+              </div>
+            </div>
+
+            <div id="inspector-sla-container" class="hidden">
+              <span class="text-[11px] font-semibold text-slate-400 uppercase">Regra de Negócio / SLA</span>
+              <p id="inspector-sla" class="text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 p-2 rounded-lg mt-0.5 font-medium"></p>
+            </div>
+
+            <!-- Botão Proeminente de Redirecionamento para Gerenciador -->
+            <button 
+              id="btn-inspector-edit-manager" 
+              onclick="if (state.selectedFlowNodeId) navigateToMessageManager(state.selectedFlowNodeId)"
+              class="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-xs shadow-md transition transform active:scale-95">
+              <i data-lucide="edit-3" class="w-4 h-4"></i>
+              <span>Editar no Gerenciador de Mensagens</span>
+            </button>
+          </div>
+
+          <!-- Mini Simulador WhatsApp Live Sync -->
+          <div class="bg-slate-900 rounded-[2rem] p-3 shadow-xl border-4 border-slate-800">
+            <div class="w-20 h-3 bg-slate-800 rounded-full mx-auto mb-2"></div>
+            <div class="bg-[#efeae2] dark:bg-[#0b141a] rounded-[1.5rem] overflow-hidden flex flex-col h-[340px] border border-slate-700/30">
+              <!-- Top bar -->
+              <div class="bg-[#008069] dark:bg-[#202c33] text-white px-3 py-2 flex items-center space-x-2">
+                <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-slate-700 font-bold text-[10px]">PF</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-semibold truncate leading-tight">Petri Fotos Oficial</p>
+                  <p class="text-[9px] text-emerald-200">automação ativa</p>
+                </div>
+              </div>
+              <!-- Chat content -->
+              <div class="flex-1 p-2.5 overflow-y-auto space-y-2 text-xs" style="background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 0); background-size: 16px 16px;">
+                <div class="whatsapp-bubble-received p-2.5 max-w-[95%] text-slate-800 dark:text-slate-100">
+                  <div id="flowchart-sim-bubble" class="whitespace-pre-wrap text-[11px] leading-relaxed break-words">
+                    Selecione um nó do fluxograma para visualizar aqui em tempo real.
+                  </div>
+                  <div class="text-[9px] text-right mt-1 text-slate-400 font-mono">10:00</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- ABA 3: CONEXÕES WHATSAPP API (CRUD DA API DO WHATSAPP)  -->
+    <!-- ======================================================== -->
+    <section id="tab-content-whatsapp" class="hidden space-y-6">
+      <!-- Métricas Rápidas da API -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Conexões WhatsApp</p>
+            <h3 id="stat-wa-total" class="text-2xl font-bold mt-1 text-slate-900 dark:text-white">--</h3>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <i data-lucide="smartphone" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Instância Ativa</p>
+            <h3 id="stat-wa-active-name" class="text-base font-bold mt-1 text-blue-600 dark:text-blue-400 truncate max-w-[140px]">--</h3>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+            <i data-lucide="check-circle" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Gateway Ingestão</p>
+            <h3 class="text-sm font-bold mt-1 text-slate-800 dark:text-slate-200 font-mono">/webhook/evolution</h3>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+            <i data-lucide="radio" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">SLA do Webhook</p>
+            <h3 class="text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">&lt; 150 ms</h3>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <i data-lucide="zap" class="w-6 h-6"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Ações: Nova Conexão & Ping Geral -->
+      <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white">Conexão WhatsApp Nativa (Baileys)</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Serviço de WhatsApp embarcado rodando diretamente no servidor, sem dependência do Docker.</p>
+        </div>
+
+        <div class="flex items-center gap-2.5 w-full sm:w-auto">
+          <button onclick="testAllWhatsAppInstances()" class="px-3.5 py-2 text-xs font-medium rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition flex items-center gap-1.5">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            <span>Testar Conexão</span>
+          </button>
+
+          <button onclick="disconnectWhatsApp()" class="px-3.5 py-2 text-xs font-medium rounded-lg border border-rose-300 dark:border-rose-800 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition flex items-center gap-1.5" title="Desconectar Sessão Atual">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            <span>Desconectar</span>
+          </button>
+
+          <button onclick="openQrCodeModal('inst-default-petri')" class="flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition">
+            <i data-lucide="qr-code" class="w-4 h-4"></i>
+            <span>Conectar WhatsApp</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Grid de Instâncias Cadastradas (CRUD) -->
+      <div id="whatsapp-instances-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Renderizado dinamicamente via JS -->
+        <div class="col-span-full p-8 text-center text-slate-400">
+          <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-2 text-emerald-500"></i>
+          <p class="text-sm">Carregando conexões da API...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ABA 4: GERENCIADOR DE MENSAGENS E PREÇOS   -->
+    <!-- ========================================== -->
+    <section id="tab-content-messages" class="hidden space-y-6">
+      <!-- Cabeçalho de Ações da Aba -->
+      <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 sticky top-20 z-30">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white">Gerenciador de Mensagens e Preços</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Edite textos, valores e prazos em tempo real sem reiniciar o servidor.</p>
+        </div>
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <button onclick="openCreateNodeModal()" type="button" class="flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>+ Adicionar Novo Bloco de Mensagem</span>
+          </button>
+          <button id="btn-reset-messages" type="button" class="px-3.5 py-2 text-xs sm:text-sm font-medium rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+            Descartar Alterações
+          </button>
+          <button id="btn-save-messages" type="button" class="flex items-center gap-2 px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition">
+            <i data-lucide="save" class="w-4 h-4"></i>
+            <span id="save-btn-text">Salvar Alterações</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulários e Live Preview -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Coluna de Formulários (7 cols) -->
+        <div class="lg:col-span-7 space-y-6">
+
+          <!-- 1. FOTOS PARA DOCUMENTO -->
+          <div id="card-msg-documents" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden transition-all duration-300">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/40 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="file-check-2" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i>
+                <h3 class="font-bold text-slate-800 dark:text-white">Fotos para Documentos (3x4, 5x5, etc.)</h3>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 font-medium">Balcão / Presencial</span>
+                <button type="button" onclick="confirmDeleteNode('node-document-photos')" class="p-1 rounded-md text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition" title="Excluir Bloco de Mensagem">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+            <div class="p-5 space-y-4">
+              <!-- Preço Base -->
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Preço Único de Fotos para Documento (R$)</label>
+                <div class="relative rounded-lg shadow-sm">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-medium text-sm">R$</div>
+                  <input id="input-doc-price" type="number" step="0.5" min="1" class="w-full pl-10 pr-3 py-2 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" placeholder="30.00">
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Valor padrão fixo: R$ 30,00 por pacote para qualquer formato.</p>
+              </div>
+
+              <!-- Quantidades por Pacote -->
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-2">Quantidades de Fotos por Pacote</label>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div>
+                    <span class="block text-xs text-slate-600 dark:text-slate-300 font-medium mb-1">3x4 cm</span>
+                    <input id="input-pkg-3x4" type="number" min="1" class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" value="6">
+                  </div>
+                  <div>
+                    <span class="block text-xs text-slate-600 dark:text-slate-300 font-medium mb-1">3.5x4.5 cm</span>
+                    <input id="input-pkg-35x45" type="number" min="1" class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" value="6">
+                  </div>
+                  <div>
+                    <span class="block text-xs text-slate-600 dark:text-slate-300 font-medium mb-1">5x5 cm (Visto)</span>
+                    <input id="input-pkg-5x5" type="number" min="1" class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" value="2">
+                  </div>
+                  <div>
+                    <span class="block text-xs text-slate-600 dark:text-slate-300 font-medium mb-1">5x7 cm</span>
+                    <input id="input-pkg-5x7" type="number" min="1" class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" value="2">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Texto Explicativo -->
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Texto Enviado no WhatsApp (Orientações de Balcão)</label>
+                <textarea id="input-doc-text" rows="5" class="w-full p-3 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" oninput="updateLivePreview(this.value)"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. BOAS-VINDAS E MENUS INSTITUCIONAIS -->
+          <div id="card-msg-welcome" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden transition-all duration-300">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/40 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="sparkles" class="w-5 h-5 text-amber-500"></i>
+                <h3 class="font-bold text-slate-800 dark:text-white">Boas-vindas & Menus Institucionais</h3>
+              </div>
+              <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700/80 text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i>
+                Sistema Protegido
+              </span>
+            </div>
+            <div class="p-5 space-y-4">
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Mensagem de Boas-vindas (Menu Principal)</label>
+                <textarea id="input-welcome-text" rows="6" class="w-full p-3 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" oninput="updateLivePreview(this.value)"></textarea>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div id="card-msg-catalogs">
+                  <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Catálogos em PDF (Submenu 2)</label>
+                  <textarea id="input-catalogs-text" rows="5" class="w-full p-3 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" oninput="updateLivePreview(this.value)"></textarea>
+                  <div class="mt-1">
+                    <button type="button" onclick="switchMainTab('catalogs')" class="text-[11px] text-purple-600 dark:text-purple-400 hover:underline font-semibold flex items-center gap-1">
+                      <i data-lucide="link-2" class="w-3 h-3"></i>
+                      <span>Gerenciar URLs oficiais na aba "Serviços & Links de Catálogos" &rarr;</span>
+                    </button>
+                  </div>
+                </div>
+                <div id="card-msg-studio">
+                  <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Ensaios no Estúdio (Horários & Info)</label>
+                  <textarea id="input-studio-text" rows="5" class="w-full p-3 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" oninput="updateLivePreview(this.value)"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. REVELAÇÃO DE FOTOS & PIX COPIA E COLA -->
+          <div id="card-msg-personal-prints" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden transition-all duration-300">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/40 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="printer" class="w-5 h-5 text-indigo-600 dark:text-indigo-400"></i>
+                <h3 class="font-bold text-slate-800 dark:text-white">Revelação de Fotos Pessoais & Cobrança Pix</h3>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 font-medium">Laboratório Químico</span>
+                <button type="button" onclick="confirmDeleteNode('node-personal-prints')" class="p-1 rounded-md text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition" title="Excluir Bloco de Mensagem">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+            <div class="p-5 space-y-4">
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Instruções para Revelação (Envio de Fotos e Tamanho)</label>
+                <textarea id="input-print-instructions" rows="4" class="w-full p-3 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" oninput="updateLivePreview(this.value)"></textarea>
+                <p class="text-xs text-slate-400 mt-1">Explica o envio via WhatsApp (preferencialmente como documento).</p>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Orçamento & Pix Copia e Cola (Template Dinâmico)</label>
+                <textarea id="input-print-quote" rows="5" class="w-full p-3 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" oninput="updateLivePreview(this.value)"></textarea>
+                <p class="text-xs text-slate-400 mt-1">Variáveis disponíveis: {TOTAL_PHOTOS}, {PHOTO_SIZE}, {TOTAL_PRICE}, {PIX_COPIA_E_COLA}.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. GALERIA ALBOOM (SLAs E AVISOS) -->
+          <div id="card-msg-alboom" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden transition-all duration-300">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/40 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="image" class="w-5 h-5 text-indigo-600 dark:text-indigo-400"></i>
+                <h3 class="font-bold text-slate-800 dark:text-white">Galeria Alboom (SLA e Avisos de Prova)</h3>
+              </div>
+              <button type="button" onclick="confirmDeleteNode('node-alboom-menu')" class="p-1 rounded-md text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition" title="Excluir Bloco de Mensagem">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <div class="p-5 space-y-4">
+              <!-- SLA em dias úteis -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Prazo SLA de Produção (Dias Úteis)</label>
+                  <input id="input-alboom-sla-days" type="number" min="1" max="60" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" value="10">
+                  <p class="text-xs text-slate-400 mt-1">Padrão contratual: até 10 dias úteis para entrega.</p>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Menu Alboom</label>
+                  <textarea id="input-alboom-menu" rows="2" class="w-full p-2 text-xs font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white"></textarea>
+                </div>
+              </div>
+
+              <!-- Aviso de Espera de Horas (Upload) -->
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Aviso de Horas de SLA para Upload do Link</label>
+                <textarea id="input-alboom-wait-hours" rows="4" class="w-full p-3 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" oninput="updateLivePreview(this.value)"></textarea>
+                <p class="text-xs text-slate-400 mt-1">Explica ao cliente que a equipe precisa de algumas horas para subir as fotos.</p>
+              </div>
+
+              <!-- Confirmação de Finalização -->
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Confirmação de Finalização (Prazo até 10 dias úteis)</label>
+                <textarea id="input-alboom-confirmation" rows="4" class="w-full p-3 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" oninput="updateLivePreview(this.value)"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. FOTOS SACRAMENTAIS (CRISMA E COMUNHÃO) -->
+          <div id="card-msg-sacramental" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden transition-all duration-300">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/40 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="church" class="w-5 h-5 text-emerald-600 dark:text-emerald-400"></i>
+                <h3 class="font-bold text-slate-800 dark:text-white">Fotos Sacramentais (Comunhão, Crisma e Confirmação)</h3>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 font-medium">Pré-pago / Sem Pix</span>
+                <button type="button" onclick="confirmDeleteNode('node-sacramental')" class="p-1 rounded-md text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition" title="Excluir Bloco de Mensagem">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+            <div class="p-5 space-y-4">
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Instruções de Resgate com Aviso de Quitação Prévia</label>
+                <textarea id="input-sacramental-notice" rows="5" class="w-full p-3 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" oninput="updateLivePreview(this.value)"></textarea>
+                <p class="text-xs text-slate-400 mt-1">Esclarece que fotos da cerimônia contratada já possuem pagamento quitado no dia.</p>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Mensagem de Dados Recebidos (Acervo)</label>
+                <textarea id="input-sacramental-received" rows="2" class="w-full p-2 text-xs font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. TRANSBORDO HUMANO E FALLBACK -->
+          <div id="card-msg-human" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden transition-all duration-300">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/40 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="user-x" class="w-5 h-5 text-amber-500"></i>
+                <h3 class="font-bold text-slate-800 dark:text-white">Transbordo Humano & Mensagens de Sistema</h3>
+              </div>
+              <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700/80 text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i>
+                Sistema Protegido
+              </span>
+            </div>
+            <div class="p-5 space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Transferência Direta (opção 0 / Atendente)</label>
+                  <textarea id="input-human-direct" rows="3" class="w-full p-3 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" oninput="updateLivePreview(this.value)"></textarea>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 mb-1">Fallback Automático (2 erros seguidos)</label>
+                  <textarea id="input-human-fallback" rows="3" class="w-full p-3 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white" oninput="updateLivePreview(this.value)"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. CONTAINER DE MENSAGENS E NÓS DINÂMICOS / CUSTOMIZADOS -->
+          <div id="custom-messages-container" class="space-y-6"></div>
+
+        </div>
+
+        <!-- Coluna Simulador WhatsApp (5 cols sticky) -->
+        <div class="lg:col-span-5">
+          <div class="sticky top-24 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <i data-lucide="smartphone" class="w-4 h-4"></i>
+                Simulador Live Preview WhatsApp
+              </span>
+              <span class="text-xs text-slate-400">Atualizado em tempo real</span>
+            </div>
+
+            <!-- Moldura do Smartphone -->
+            <div class="bg-slate-900 rounded-[2.5rem] p-3 shadow-2xl border-4 border-slate-800 max-w-sm mx-auto">
+              <!-- Notch / Speaker -->
+              <div class="w-28 h-4 bg-slate-800 rounded-full mx-auto mb-2"></div>
+
+              <!-- Tela do WhatsApp -->
+              <div class="bg-[#efeae2] dark:bg-[#0b141a] rounded-[2rem] overflow-hidden flex flex-col h-[520px] border border-slate-700/30">
+                <!-- WhatsApp Top Bar -->
+                <div class="bg-[#008069] dark:bg-[#202c33] text-white px-4 py-3 flex items-center space-x-3 shadow">
+                  <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-700 font-bold text-xs">
+                    PF
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold leading-tight truncate">Petri Fotos • Oficial</p>
+                    <p class="text-[10px] text-emerald-100 dark:text-emerald-400 flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span> online
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Chat Body com fundo clássico do WhatsApp -->
+                <div class="flex-1 p-3 overflow-y-auto space-y-3 text-xs leading-relaxed" style="background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 0); background-size: 16px 16px;">
+                  <div class="text-center">
+                    <span class="px-2 py-0.5 rounded-md bg-white/70 dark:bg-slate-800/80 text-[10px] text-slate-500 dark:text-slate-400 shadow-sm">HOJE</span>
+                  </div>
+
+                  <!-- Balão da Mensagem em Edição -->
+                  <div class="whatsapp-bubble-received p-3 max-w-[92%] ml-1 text-slate-800 dark:text-slate-100">
+                    <div id="whatsapp-live-preview-content" class="whitespace-pre-wrap font-sans text-xs break-words">
+                      Selecione ou digite em um dos campos ao lado para ver a formatação do WhatsApp aqui...
+                    </div>
+                    <div class="text-[10px] text-right mt-1 text-slate-400 dark:text-slate-500 font-mono">14:30</div>
+                  </div>
+                </div>
+
+                <!-- WhatsApp Input Mock -->
+                <div class="bg-[#f0f2f5] dark:bg-[#202c33] px-3 py-2 flex items-center space-x-2 border-t border-slate-200 dark:border-slate-700">
+                  <div class="flex-1 bg-white dark:bg-slate-700 rounded-full px-3 py-1.5 text-xs text-slate-400">Mensagem</div>
+                  <div class="w-7 h-7 rounded-full bg-[#00a884] text-white flex items-center justify-center">
+                    <i data-lucide="mic" class="w-3.5 h-3.5"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ABA 5: FILA DE PEDIDOS E SOLICITAÇÕES      -->
+    <!-- ========================================== -->
+    <section id="tab-content-requests" class="hidden space-y-6">
+      <!-- Sub-navegação das Filas -->
+      <div class="bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-wrap gap-2">
+        <button id="subtab-btn-prints" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300" onclick="switchRequestsSubTab('prints')">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+          <span>Revelação de Fotos Pessoais (Pix)</span>
+        </button>
+        <button id="subtab-btn-alboom" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700" onclick="switchRequestsSubTab('alboom')">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i>
+          <span>Galeria Alboom (SLA 10 dias úteis)</span>
+        </button>
+        <button id="subtab-btn-sacramental" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700" onclick="switchRequestsSubTab('sacramental')">
+          <i data-lucide="heart-handshake" class="w-4 h-4"></i>
+          <span>Fotos Sacramentais (Crisma / Comunhão)</span>
+        </button>
+      </div>
+
+      <!-- Sub-aba 1: Fotos Pessoais & Pix -->
+      <div id="subtab-content-prints" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <div>
+            <h3 class="font-bold text-slate-900 dark:text-white">Pedidos de Impressão de Fotos Pessoais</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Controle de fotos recebidas pelo WhatsApp e confirmação do pagamento Pix.</p>
+          </div>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 font-semibold">Pix Obrigatório Pré-Laboratório</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
+                <th class="p-3.5">Cliente</th>
+                <th class="p-3.5">WhatsApp</th>
+                <th class="p-3.5">Quantidade</th>
+                <th class="p-3.5">Formato</th>
+                <th class="p-3.5">Valor Total</th>
+                <th class="p-3.5">Status do Pix</th>
+                <th class="p-3.5">Data/Hora</th>
+              </tr>
+            </thead>
+            <tbody id="prints-table-body" class="divide-y divide-slate-100 dark:divide-slate-700">
+              <tr>
+                <td colspan="7" class="p-6 text-center text-slate-400">Nenhum pedido de revelação no momento.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Sub-aba 2: Alboom & SLA -->
+      <div id="subtab-content-alboom" class="hidden bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <div>
+            <h3 class="font-bold text-slate-900 dark:text-white">Solicitações de Link & Confirmações do Alboom</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Monitoramento do SLA de Upload de Galeria e Prazo de Produção de até 10 dias úteis.</p>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
+                <th class="p-3.5">Cliente / Titular</th>
+                <th class="p-3.5">WhatsApp</th>
+                <th class="p-3.5">Tipo de Solicitação</th>
+                <th class="p-3.5">Dados Informados</th>
+                <th class="p-3.5">Contador de Dias Úteis</th>
+                <th class="p-3.5">Status do SLA</th>
+              </tr>
+            </thead>
+            <tbody id="alboom-table-body" class="divide-y divide-slate-100 dark:divide-slate-700">
+              <tr>
+                <td colspan="6" class="p-6 text-center text-slate-400">Nenhuma solicitação do Alboom no momento.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Sub-aba 3: Fotos Sacramentais -->
+      <div id="subtab-content-sacramental" class="hidden bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <div>
+            <h3 class="font-bold text-slate-900 dark:text-white">Pedidos de Resgate de Fotos Sacramentais</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Fotos de Primeira Eucaristia, Crisma e Confirmação (previamente quitadas na cerimônia).</p>
+          </div>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 font-semibold">Sem Cobrança Adicional</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
+                <th class="p-3.5">Contato</th>
+                <th class="p-3.5">WhatsApp</th>
+                <th class="p-3.5">Dados da Cerimônia (Nome / Paróquia / Ano)</th>
+                <th class="p-3.5">Status do Acervo</th>
+                <th class="p-3.5">Data de Envio</th>
+              </tr>
+            </thead>
+            <tbody id="sacramental-table-body" class="divide-y divide-slate-100 dark:divide-slate-700">
+              <tr>
+                <td colspan="5" class="p-6 text-center text-slate-400">Nenhum pedido de resgate de fotos religiosas no momento.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- ABA 6: SERVIÇOS & LINKS DE CATÁLOGOS NO SITE (UC-02)     -->
+    <!-- ======================================================== -->
+    <section id="tab-content-catalogs" class="hidden space-y-6">
+      <!-- Cabeçalho da Aba com Ações -->
+      <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-20 z-20">
+        <div class="flex items-start sm:items-center gap-3">
+          <div class="p-3 bg-purple-50 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 rounded-xl">
+            <i data-lucide="link-2" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Alimentação de Serviços & Links de Catálogos</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Configure links oficiais do site e mensagens acolhedoras para o disparo automatizado via WhatsApp.</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="loadCatalogs()" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition flex items-center gap-1.5">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Recarregar</span>
+          </button>
+          <button onclick="openNewServiceModal()" class="px-4 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white transition flex items-center gap-1.5">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-purple-400"></i>
+            <span>Adicionar Serviço</span>
+          </button>
+          <button id="btn-save-services-catalog" onclick="saveServicesCatalog()" class="px-4 py-2 text-xs font-semibold rounded-xl bg-purple-600 hover:bg-purple-700 text-white shadow-sm transition flex items-center gap-1.5">
+            <i data-lucide="save" class="w-4 h-4"></i>
+            <span>Salvar Alterações</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Resumo de Métricas Rápidas -->
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-400 uppercase">Total de Serviços</p>
+            <p id="catalogs-total-count" class="text-2xl font-bold text-slate-900 dark:text-white">0</p>
+          </div>
+          <div class="p-2.5 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-emerald-500 uppercase">Ativos no WhatsApp</p>
+            <p id="catalogs-active-count" class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">0</p>
+          </div>
+          <div class="p-2.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-lg">
+            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-amber-500 uppercase">Ocultos / Inativos</p>
+            <p id="catalogs-inactive-count" class="text-2xl font-bold text-amber-600 dark:text-amber-400">0</p>
+          </div>
+          <div class="p-2.5 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg">
+            <i data-lucide="eye-off" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-indigo-500 uppercase">Setores do Estúdio</p>
+            <p id="catalogs-sectors-count" class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">0</p>
+          </div>
+          <div class="p-2.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg">
+            <i data-lucide="folder-tree" class="w-5 h-5"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros Setoriais -->
+      <div id="catalogs-filter-pills" class="flex flex-wrap items-center gap-2">
+        <button onclick="filterCatalogsCategory('ALL')" class="catalog-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-purple-600 text-white shadow-sm transition" data-category="ALL">
+          Todos os Setores
+        </button>
+      </div>
+
+      <!-- Container Setorizado de Serviços -->
+      <div id="services-catalog-container" class="space-y-6">
+        <div class="p-10 text-center text-slate-400 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+          Carregando catálogo setorizado de serviços...
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL 1: CONTEXTO JSON DA SESSÃO           -->
+  <!-- ========================================== -->
+  <div id="session-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+        <div>
+          <h3 id="modal-client-name" class="font-bold text-lg text-slate-900 dark:text-white">Detalhes da Sessão</h3>
+          <p id="modal-remote-jid" class="text-xs text-slate-400 font-mono"></p>
+        </div>
+        <button onclick="closeSessionModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Dados de Contexto da FSM (JSON)</label>
+        <pre id="modal-context-json" class="bg-slate-900 text-emerald-400 p-4 rounded-xl text-xs font-mono overflow-x-auto max-h-80 border border-slate-700"></pre>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeSessionModal()" class="px-4 py-2 text-sm font-medium bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 2: CRUD DE INCLUSÃO DA API DO WHATSAPP             -->
+  <!-- ======================================================== -->
+  <div id="whatsapp-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+        <div>
+          <h3 id="whatsapp-modal-title" class="font-bold text-lg text-slate-900 dark:text-white">Nova Conexão WhatsApp API</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Integração com Evolution API v2 para atendimento da Petri Fotos.</p>
+        </div>
+        <button onclick="closeWhatsAppModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="whatsapp-form" onsubmit="handleSaveWhatsAppInstance(event)" class="space-y-3.5">
+        <input type="hidden" id="wa-form-id">
+
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300 mb-1">Nome da Conexão (Identificador Interno) *</label>
+          <input id="wa-form-name" type="text" required placeholder="Ex: Recepção Estúdio Petri" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 text-slate-800 dark:text-white">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300 mb-1">Nome da Instância Evolution *</label>
+            <input id="wa-form-instance" type="text" required placeholder="Ex: petri_fotos" class="w-full px-3 py-2 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 text-slate-800 dark:text-white">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300 mb-1">URL da Evolution API *</label>
+            <input id="wa-form-url" type="url" required placeholder="http://localhost:8080" class="w-full px-3 py-2 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 text-slate-800 dark:text-white">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300 mb-1">Chave Global da API (apiKey) *</label>
+          <input id="wa-form-key" type="password" required placeholder="••••••••••••••••" class="w-full px-3 py-2 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 text-slate-800 dark:text-white">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300 mb-1">Webhook URL (Opcional)</label>
+            <input id="wa-form-webhook" type="text" placeholder="http://localhost:3000/webhook/evolution" class="w-full px-3 py-2 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 text-slate-800 dark:text-white">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300 mb-1">Webhook Secret</label>
+            <input id="wa-form-secret" type="text" placeholder="webhook_secret" class="w-full px-3 py-2 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 text-slate-800 dark:text-white">
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 pt-1">
+          <input id="wa-form-default" type="checkbox" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 dark:border-slate-600">
+          <label for="wa-form-default" class="text-xs font-medium text-slate-700 dark:text-slate-300">Definir como conexão padrão ativa da automação</label>
+        </div>
+
+        <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-700">
+          <button type="button" onclick="closeWhatsAppModal()" class="px-4 py-2 text-xs font-medium bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200">
+            Cancelar
+          </button>
+          <button type="submit" id="btn-save-wa" class="px-5 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm transition">
+            Salvar Conexão
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 3: ESCANEAR QR CODE DO WHATSAPP                    -->
+  <!-- ======================================================== -->
+  <div id="qrcode-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 text-center space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+        <div class="text-left">
+          <h3 class="font-bold text-lg text-slate-900 dark:text-white">Conectar WhatsApp</h3>
+          <p id="qrcode-instance-subtitle" class="text-xs text-slate-500 font-mono"></p>
+        </div>
+        <button onclick="closeQrModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Status e Contador de Auto-refresh -->
+      <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-1">
+        <span class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 status-pulse"></span>
+          <span>Aguardando leitura do aparelho</span>
+        </span>
+        <span id="qrcode-timer-badge" class="font-mono text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+          Atualiza em 25s
+        </span>
+      </div>
+
+      <!-- Container Visual Limpo do QR Code (Tag nativa <img> sem sobreposições) -->
+      <div class="flex items-center justify-center min-h-[16rem] my-1">
+        <!-- Indicador Visual: A Carregar QR Code... -->
+        <div id="qrcode-loading-state" class="flex flex-col items-center justify-center w-64 h-64 bg-slate-50 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600">
+          <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-emerald-500 mb-2"></i>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">A carregar QR Code...</p>
+        </div>
+
+        <!-- Tag de Imagem Nativa (Renderização Limpa) -->
+        <img id="qrcode-image" class="w-64 h-64 mx-auto rounded-lg shadow-sm bg-white p-2 border border-slate-200 dark:border-slate-700 hidden object-contain" src="" alt="QR Code WhatsApp" />
+
+        <!-- Estado de Erro com Botão Tentar Novamente -->
+        <div id="qrcode-error-state" class="hidden flex flex-col items-center justify-center w-64 h-64 bg-rose-50 dark:bg-rose-950/40 rounded-lg border border-rose-200 dark:border-rose-800 p-4 text-center">
+          <i data-lucide="alert-circle" class="w-8 h-8 text-rose-500 mb-2"></i>
+          <p id="qrcode-error-message" class="text-xs text-rose-700 dark:text-rose-300 font-medium mb-3">Falha ao obter QR Code da Evolution API.</p>
+          <button id="btn-retry-qr" type="button" onclick="refreshQrCodeModal()" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold shadow-sm transition">
+            Tentar Novamente
+          </button>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-600 dark:text-slate-300 font-medium max-w-xs mx-auto">
+        Abra o WhatsApp &gt; Dispositivos Conectados &gt; Conectar um aparelho e aponte a câmera para o QR Code.
+      </p>
+
+      <!-- Código de Pareamento Opcional -->
+      <div id="pairing-code-box" class="bg-slate-50 dark:bg-slate-700/50 p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-xs text-slate-600 dark:text-slate-300">
+        <span class="text-slate-400">Código de Pareamento:</span>
+        <span id="pairing-code-text" class="font-mono font-bold text-slate-800 dark:text-white ml-1">--</span>
+      </div>
+
+      <div class="flex items-center justify-center gap-2 pt-1">
+        <button id="btn-refresh-qrcode" onclick="refreshQrCodeModal()" class="px-4 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center gap-1.5 transition">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>Atualizar QR Code</span>
+        </button>
+        <button onclick="closeQrModal()" class="px-4 py-2 text-xs font-medium bg-slate-100 dark:bg-slate-700 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 4: EDITAR / CRIAR NÓ DO FLUXOGRAMA (Q&A CRUD)      -->
+  <!-- ======================================================== -->
+  <div id="flow-node-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-lg">
+            <i data-lucide="git-branch" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 id="flow-node-modal-title" class="font-bold text-lg text-slate-900 dark:text-white">Editar Pergunta & Resposta</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Ajuste gatilhos, opções e o texto enviado ao cliente.</p>
+          </div>
+        </div>
+        <button onclick="closeFlowNodeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="flow-node-form" onsubmit="handleSaveFlowNode(event)" class="space-y-3.5">
+        <input type="hidden" id="flow-form-id">
+        <input type="hidden" id="flow-form-is-custom">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300 mb-1">Título do Passo / Nó *</label>
+            <input id="flow-form-title" type="text" required placeholder="Ex: Promoção Dia das Mães" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white" oninput="autoFillFlowNodeSlug(this.value)">
+          </div>
+
+          <div id="flow-form-id-wrapper">
+            <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300 mb-1">Slug / Identificador *</label>
+            <input id="flow-form-id-input" type="text" required placeholder="Ex: promocao-dia-das-maes" class="w-full px-3 py-2 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300 mb-1">Categoria / Setor *</label>
+            <select id="flow-form-category" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white">
+              <option value="Personalizado">Personalizado</option>
+              <option value="Documentos">Fotos Documento</option>
+              <option value="Catálogos">Catálogos & Orçamentos</option>
+              <option value="Revelação">Revelação & Pix</option>
+              <option value="Estúdio">Estúdio & Ensaios</option>
+              <option value="Alboom">Galeria Alboom</option>
+              <option value="Sacramental">Fotos Sacramentais</option>
+              <option value="Atendimento">Atendimento Humano</option>
+            </select>
+          </div>
+
+          <div id="flow-form-parent-wrapper">
+            <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300 mb-1">Nó Pai / Origem da Ligação</label>
+            <select id="flow-form-parent" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white">
+              <option value="node-main-menu">Menu Principal (Padrão)</option>
+              <option value="node-catalogs-menu">Catálogos & Orçamentos (UC-02)</option>
+              <option value="node-document-photos">Fotos para Documentos</option>
+              <option value="node-personal-prints">Instruções para Revelação</option>
+              <option value="node-alboom-menu">Galeria Alboom</option>
+              <option value="node-sacramental">Crismas e Festividades</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300 mb-1">Gatilho / Pergunta do Cliente (Como o cliente chega aqui) *</label>
+          <input id="flow-form-trigger" type="text" required placeholder="Ex: Opção 6 ou 'promoção', 'dia das mães'" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white">
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300">Texto de Resposta do Bot *</label>
+            <div class="flex items-center gap-1 text-[11px] text-slate-400">
+              <span>Tags rápidas:</span>
+              <button type="button" class="hover:text-indigo-500 px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-700 font-mono" onclick="insertTagIntoFlowText('{PRECO}')">{PRECO}</button>
+              <button type="button" class="hover:text-indigo-500 px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-700 font-mono" onclick="insertTagIntoFlowText('{PIX_COPIA_E_COLA}')">{PIX}</button>
+              <button type="button" class="hover:text-indigo-500 px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-700 font-mono" onclick="insertTagIntoFlowText('{PRAZO_DIAS}')">{PRAZO}</button>
+            </div>
+          </div>
+          <textarea id="flow-form-message" rows="5" required class="w-full p-3 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white"></textarea>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700">
+          <button type="button" id="btn-delete-flow-node" onclick="handleDeleteFlowNodeFromModal()" class="hidden px-3.5 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition flex items-center gap-1.5">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+            <span>Excluir Nó</span>
+          </button>
+          <div class="flex gap-2 ml-auto">
+            <button type="button" onclick="closeFlowNodeModal()" class="px-4 py-2 text-xs font-medium bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200">
+              Cancelar
+            </button>
+            <button type="submit" id="btn-save-flow-node" class="px-5 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm transition flex items-center gap-1.5">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span>Salvar no Fluxograma</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: ADICIONAR NOVO SERVIÇO AO CATÁLOGO (UC-02)       -->
+  <!-- ======================================================== -->
+  <div id="service-catalog-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 bg-purple-50 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 rounded-lg">
+            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg text-slate-900 dark:text-white">Adicionar Novo Serviço ao Estúdio</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Cadastre um novo ensaio ou evento com link do site e mensagem humanizada.</p>
+          </div>
+        </div>
+        <button onclick="closeNewServiceModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="new-service-form" onsubmit="handleAddNewService(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300 mb-1">Nome Comercial do Serviço *</label>
+          <input id="service-form-title" type="text" required placeholder="Ex: Ensaio Pet & Família" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 text-slate-800 dark:text-white" oninput="autoFillSlug(this.value)">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300 mb-1">Identificador / Slug *</label>
+            <input id="service-form-id" type="text" required placeholder="Ex: ensaio-pet-familia" class="w-full px-3 py-2 text-sm font-mono bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 text-slate-800 dark:text-white">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300 mb-1">Setor do Estúdio *</label>
+            <input id="service-form-sector" type="text" required list="sectors-datalist" placeholder="Ex: Maternidade & Família" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 text-slate-800 dark:text-white">
+            <datalist id="sectors-datalist">
+              <option value="Maternidade & Família"></option>
+              <option value="Aniversários & Comemorações"></option>
+              <option value="Carreira & Formatura"></option>
+              <option value="Sazonais"></option>
+            </datalist>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300 mb-1">Link Oficial no Site da Petri Fotos *</label>
+          <input id="service-form-url" type="url" required placeholder="https://petrifotos.com.br/seu-ensaio" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 text-slate-800 dark:text-white">
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-300">Mensagem Humanizada (WhatsApp) *</label>
+            <div class="text-[11px] text-slate-400">Tags: <code class="text-purple-600 font-bold">{title}</code> e <code class="text-purple-600 font-bold">{url}</code></div>
+          </div>
+          <textarea id="service-form-message" rows="4" required class="w-full p-3 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 text-slate-800 dark:text-white"></textarea>
+        </div>
+
+        <div class="flex items-center gap-2 pt-1">
+          <input id="service-form-active" type="checkbox" checked class="w-4 h-4 text-purple-600 rounded border-slate-300 dark:border-slate-600 focus:ring-purple-500">
+          <label for="service-form-active" class="text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+            Ativo imediatamente para resposta aos clientes no WhatsApp
+          </label>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-700">
+          <button type="button" onclick="closeNewServiceModal()" class="px-4 py-2 text-xs font-medium bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200">
+            Cancelar
+          </button>
+          <button type="submit" class="px-5 py-2 text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-sm transition flex items-center gap-1.5">
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Adicionar ao Catálogo</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: CONFIRMAÇÃO DE EXCLUSÃO DE NÓ DO FLUXOGRAMA       -->
+  <!-- ======================================================== -->
+  <div id="confirm-delete-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+      <div class="flex items-center gap-3 text-rose-600 dark:text-rose-400">
+        <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/60 flex items-center justify-center shrink-0">
+          <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">Excluir Mensagem / Nó</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Confirmação de ação do fluxo</p>
+        </div>
+      </div>
+
+      <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+        Tem certeza que deseja remover esta mensagem? As ramificações dependentes voltarão ao menu principal.
+      </p>
+
+      <div class="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-slate-400 shrink-0"></i>
+        <div class="min-w-0 flex-1">
+          <p id="confirm-delete-node-name" class="text-xs font-semibold text-slate-900 dark:text-white truncate">--</p>
+          <p id="confirm-delete-node-id" class="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate">--</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" onclick="closeConfirmDeleteModal()" class="px-4 py-2 text-xs font-medium bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200">
+          Cancelar
+        </button>
+        <button type="button" id="btn-confirm-delete-node" onclick="executeDeleteConfirmedNode()" class="px-5 py-2 text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white rounded-lg shadow-sm transition flex items-center gap-1.5">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+          <span>Excluir Mensagem</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT PRINCIPAL DO DASHBOARD -->
+  <script src="./app.js"></script>
+</body>
+</html>

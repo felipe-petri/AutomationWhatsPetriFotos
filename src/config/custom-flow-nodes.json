@@ -1,0 +1,16 @@
+[
+  {
+    "id": "custom-node-d644fbcb",
+    "title": "Dúvidas sobre Molduras",
+    "category": "Personalizado",
+    "type": "CUSTOM_QA",
+    "state": "CUSTOM_QA",
+    "triggerDescription": "Cliente pergunta sobre molduras de quadros",
+    "messageText": "Trabalhamos com molduras em madeira nobre e paspatur anti-mofo! Venha conferir nosso mostruário no estúdio.",
+    "options": [],
+    "icon": "message-circle",
+    "isCustom": true,
+    "createdAt": "2026-10-29T17:18:51.308Z",
+    "updatedAt": "2026-10-29T17:18:51.308Z"
+  }
+]

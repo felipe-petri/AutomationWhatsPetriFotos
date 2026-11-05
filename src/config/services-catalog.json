@@ -1,0 +1,114 @@
+[
+  {
+    "id": "gestante",
+    "title": "Ensaio Gestante",
+    "sector": "Maternidade & Família",
+    "url": "https://petrifotos.com.br/gestante",
+    "humanizedMessage": "Que notícia maravilhosa! 💛 Dá uma olhadinha em tudo o que preparamos para o {title} (fotos, figurinos inclusos e detalhes do ensaio):\n🔗 {url}\n\nDá uma olhada com carinho e me avise qual proposta combina mais com o seu momento! Se quiser tirar dúvidas sobre figurinos ou agenda, estou por aqui. ✨",
+    "active": true
+  },
+  {
+    "id": "revelacao-gravidez",
+    "title": "Revelação de Gravidez",
+    "sector": "Maternidade & Família",
+    "url": "https://petrifotos.com.br/revelacao-gravidez",
+    "humanizedMessage": "Que momento único e emocionante! 💛 Preparamos uma proposta linda e acolhedora para o {title}:\n🔗 {url}\n\nVeja as fotos e os detalhes. Qualquer dúvida sobre cenários ou ideias criativas, conte com a gente! ✨",
+    "active": true
+  },
+  {
+    "id": "newborn",
+    "title": "Ensaio Newborn",
+    "sector": "Maternidade & Família",
+    "url": "https://petrifotos.com.br/newborn",
+    "humanizedMessage": "Parabéns por essa nova vida! 👶💛 Nosso {title} é realizado com todo cuidado, ambiente climatizado e total segurança:\n🔗 {url}\n\nDá uma olhadinha no portfólio e nos pacotes. Qualquer dúvida sobre a idade ideal do bebê ou agendamento, é só me chamar! ✨",
+    "active": true
+  },
+  {
+    "id": "smash-the-cake",
+    "title": "Smash The Cake",
+    "sector": "Maternidade & Família",
+    "url": "https://petrifotos.com.br/smash-the-cake",
+    "humanizedMessage": "Vai ser pura diversão e doçura! 🎂🎉 Dá uma olhadinha em como funciona nosso {title} (cenários, bolo e banho quentinho):\n🔗 {url}\n\nVeja as fotos e os pacotes. Qualquer dúvida sobre temas ou personalização, estou por aqui! ✨",
+    "active": true
+  },
+  {
+    "id": "familia",
+    "title": "Ensaio Família",
+    "sector": "Maternidade & Família",
+    "url": "https://petrifotos.com.br/familia",
+    "humanizedMessage": "Registrar a história da família é um presente para a vida toda! 💛 Veja tudo sobre o nosso {title}:\n🔗 {url}\n\nConfira os estilos em estúdio ou externos. Se precisar de dicas sobre roupas ou datas, me chame por aqui! ✨",
+    "active": true
+  },
+  {
+    "id": "batizado",
+    "title": "Batizado",
+    "sector": "Maternidade & Família",
+    "url": "https://petrifotos.com.br/batizado",
+    "humanizedMessage": "Um sacramento lindo e abençoado! 🕊️ Registramos cada momento do {title} com toda discrição e sensibilidade:\n🔗 {url}\n\nDá uma olhadinha nas fotos e coberturas. Me avise a data e paróquia para checarmos nossa agenda! ✨",
+    "active": true
+  },
+  {
+    "id": "aniversario-infantil-2026",
+    "title": "Aniversário Infantil (2026)",
+    "sector": "Aniversários & Comemorações",
+    "url": "https://petrifotos.com.br/aniversario-infantil-2026",
+    "humanizedMessage": "Que alegria comemorar mais um ano de vida! 🎈✨ Confira os nossos pacotes para {title}:\n🔗 {url}\n\nVeja as opções com cobertura completa da festinha. Me conte qual a data do evento para checarmos a disponibilidade! 💛",
+    "active": true
+  },
+  {
+    "id": "aniversario-infantil-2027",
+    "title": "Aniversário Infantil (2027)",
+    "sector": "Aniversários & Comemorações",
+    "url": "https://petrifotos.com.br/aniversario-infantil-2027",
+    "humanizedMessage": "Planejar com antecedência garante as melhores condições! 🎈✨ Veja nossa tabela antecipada para {title}:\n🔗 {url}\n\nConfira as propostas especiais. Se quiser já reservar a sua data preferida, estou à disposição! 💛",
+    "active": true
+  },
+  {
+    "id": "15-anos",
+    "title": "15 Anos / Debutante",
+    "sector": "Aniversários & Comemorações",
+    "url": "https://petrifotos.com.br/15-anos",
+    "humanizedMessage": "Um momento inesquecível e mágico! 👑✨ Veja tudo sobre o nosso ensaio de {title} (incluindo acesso ao nosso acervo exclusivo de vestidos):\n🔗 {url}\n\nDá uma olhada nos ensaios e produções. Se quiser agendar uma visita ao estúdio para conhecer os vestidos, é só me avisar! 💛",
+    "active": true
+  },
+  {
+    "id": "aniversario-feminino",
+    "title": "Aniversário Feminino / Adulto",
+    "sector": "Aniversários & Comemorações",
+    "url": "https://petrifotos.com.br/aniversario-feminino",
+    "humanizedMessage": "Celebrar a sua jornada é poderoso e libertador! 🥂✨ Veja tudo o que preparamos para o {title}:\n🔗 {url}\n\nPropostas modernas, leves e elegantes em estúdio. Me diga qual estilo mais combina com você! 💛",
+    "active": true
+  },
+  {
+    "id": "perfil-profissional",
+    "title": "Perfil Profissional / Ensaio Corporativo",
+    "sector": "Carreira & Formatura",
+    "url": "https://petrifotos.com.br/perfil-profissional",
+    "humanizedMessage": "Sua imagem profissional transmite autoridade e conexão! 💼✨ Confira nossa proposta para {title}:\n🔗 {url}\n\nDireção personalizada de poses e iluminação comercial de alto impacto. Vamos agendar sua sessão? Me avise por aqui! ✨",
+    "active": true
+  },
+  {
+    "id": "formatura",
+    "title": "Formatura",
+    "sector": "Carreira & Formatura",
+    "url": "https://petrifotos.com.br/formatura",
+    "humanizedMessage": "A conquista do seu diploma merece fotos à altura desse momento! 🎓✨ Confira nossas sessões de {title} em estúdio com beca e capelo:\n🔗 {url}\n\nVeja as opções individuais e com a família. Me informe seu curso para alinharmos os detalhes! 💛",
+    "active": true
+  },
+  {
+    "id": "natal-novembro",
+    "title": "Ensaio de Natal (Lote Novembro)",
+    "sector": "Sazonais",
+    "url": "https://petrifotos.com.br/natal-novembro",
+    "humanizedMessage": "A magia do Natal chegou à Petri Fotos! 🎄🎅 Dá uma olhadinha no cenário exclusivo do {title} (com condições especiais de Lote 2):\n🔗 {url}\n\nVagas limitadas para garantir a entrega das fotos antes das festas. Garanta o horário da sua família! ✨",
+    "active": true
+  },
+  {
+    "id": "natal-dezembro",
+    "title": "Ensaio de Natal (Lote Dezembro)",
+    "sector": "Sazonais",
+    "url": "https://petrifotos.com.br/natal-dezembro",
+    "humanizedMessage": "Viva momentos encantadores no fim de ano! 🎄✨ Confira as opções de {title}:\n🔗 {url}\n\nCenários mágicos e interativos para todas as idades. Me avise para conferir os horários ainda disponíveis! 💛",
+    "active": true
+  }
+]

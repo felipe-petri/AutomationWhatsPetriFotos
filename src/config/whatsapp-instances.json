@@ -1,0 +1,16 @@
+[
+  {
+    "id": "inst-default-petri",
+    "name": "Instância Principal Petri Fotos",
+    "instanceName": "petri_fotos",
+    "apiUrl": "http://localhost:8080",
+    "apiKey": "sua_chave_global_evolution",
+    "webhookUrl": "http://localhost:3000/webhook/evolution",
+    "webhookSecret": "chave_secreta_webhook",
+    "isDefault": true,
+    "status": "CONNECTED",
+    "createdAt": "2026-10-29T12:33:12.254Z",
+    "updatedAt": "2026-10-29T16:35:44.528Z",
+    "lastCheckedAt": "2026-10-29T16:35:44.528Z"
+  }
+]
